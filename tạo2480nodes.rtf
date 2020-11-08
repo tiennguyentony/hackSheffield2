@@ -1,0 +1,97 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1671
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww11760\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 1). Making 2480 nodes\
+\
+unwind range(1, 2480) as i\
+create (node\{id: i\})\
+\
+match(n) \
+ set n.longitude= (n.id-1) %31\
+\
+match(n) where n.id < 32\
+set n.latitude = 0\
+\
+match(n)\
+match(m) where m.id > n.id and m.id = n.id + 31\
+set m.latitude = n.latitude + 1\
+\
+2). Making Neutral and relationships\
+a), Neutral\
+#hangdoc\
+match(n) where n.latitude % 3 = 0 and n.longitude < 30\
+set n.neutral = 0\
+#hang ngang \
+match(n) where n.longitude = 0 \
+set n.neutral = 0\
+\
+match(n) where n.longitude = 15\
+set n.neutral = 0\
+\
+match(n) where n.longitude = 29\
+set n.neutral = 0\
+\
+match(n) where n.latitude > 6 and n.latitude % 3 =1 and 0 < n.longitude < 29 and n.longitude <> 15\
+set n.neutral = -1\
+\
+match(n) where n.latitude > 6 and n.latitude % 3 =2 and 0 < n.longitude < 29 and n.longitude <> 15\
+set n.neutral = 1\
+\
+match(n) where n.latitude <=6 and n.latitude % 3 =2 and 0 < n.longitude < 29 and n.longitude <> 15\
+set n.neutral = -1\
+\
+match(n) where n.latitude <=6 and n.latitude % 3 = 1 and 0 < n.longitude < 29 and n.longitude <> 15\
+set n.neutral = 1\
+\
+match(n) Where n.latitude <=6 and n.longitude = 30\
+set n.neutral = 0\
+\
+match(n) Where n.latitude > 6 and n.longitude = 30\
+set n.neutral = 1\
+\
+b). making relationships\
+\
+match(n) where n.latitude % 3 = 0 and n.longitude < 29\
+match(m) where m.latitude = n.latitude and m.longitude = n.longitude + 1\
+create (n) -[:ROAD\{cost: 1\}] -> (m)\
+\
+match(n) where n.longitude = 0 \
+match(m) where m.longitude = 0 and m.latitude = n.latitude + 1\
+create (n) -[:ROAD\{cost: 1\}] -> (m)\
+\
+match(n) where n.longitude = 15\
+match(m) where m.longitude = n.longitude and m.latitude = n.latitude + 1\
+create (n) -[:ROAD\{cost: 1\}] -> (m)\
+\
+match(n) where n.longitude = 29\
+match(m) where m.longitude = n.longitude and m.latitude = n.latitude + 1\
+create (n) -[:ROAD\{cost: 1\}] -> (m)\
+\
+\
+match(n) where 0 < n.longitude< 29 and n.latitude % 3 = 0 and n.longitude <> 15\
+match(m) where m.longitude = n.longitude and (m.latitude = n.latitude + 1 or m.latitude = n.latitude -1)\
+create(n)-[:ROAD\{cost:1\}]->(m)\
+\
+match(n) where n.longitude = 30 and n.latitude < 6\
+match(m) where m.longitude = n.longitude and m.latitude = n.latitude + 1\
+create (n) -[:ROAD\{cost:1\}] -> (m)\
+\
+\
+match(n) where n.longitude = 29\
+match(m) where m.longitude = n.longitude +1 and m.latitude = n.latitude \
+create(n) - [:ROAD\{cost:1\}] ->(m)\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+}
